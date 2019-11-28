@@ -1,15 +1,24 @@
 package gimgui
 
 import (
+	"errors"
 	"fyne.io/fyne"
 	"fyne.io/fyne/app"
 	"fyne.io/fyne/canvas"
+	fyneDialog "fyne.io/fyne/dialog"
 	"fyne.io/fyne/layout"
 	"fyne.io/fyne/widget"
 	gim "github.com/ozankasikci/go-image-merge"
 	"github.com/sqweek/dialog"
 	"image/jpeg"
 	"os"
+	"strconv"
+)
+
+const (
+	DefaultGridCountX = 2
+	DefaultGridCountY = 1
+	DefaultGridSize = 75
 )
 
 type Grid struct {
@@ -19,19 +28,26 @@ type Grid struct {
 }
 
 type Gim struct {
-	GridSizeX int
-	GridSizeY int
-	Grids     []*Grid
+	Window        *fyne.Window
+	ImagesSection *fyne.Container
+	GridCountX    int
+	GridCountY    int
+	Grids         []*Grid
 }
 
-func NewGim() *Gim {
-	gim := &Gim{GridSizeX: 2, GridSizeY: 1}
-	for i := 0; i < gim.GridSizeX * gim.GridSizeY; i++ {
+func (t *Gim) generateGrids() {
+	t.Grids = nil
+	for i := 0; i < t.GridCountX* t.GridCountY; i++ {
 		grid := &Grid{
 			Index: i,
 		}
-		gim.Grids = append(gim.Grids, grid)
+		t.Grids = append(t.Grids, grid)
 	}
+}
+
+func NewGim(w *fyne.Window) *Gim {
+	gim := &Gim{GridCountX: DefaultGridCountX, GridCountY: DefaultGridCountY, Window: w}
+	gim.generateGrids()
 
 	return gim
 }
@@ -40,7 +56,7 @@ func Start() {
 	app := app.New()
 	w := app.NewWindow("GIM")
 	w.Resize(fyne.Size{500, 500})
-	gim := NewGim()
+	gim := NewGim(&w)
 
 	w.SetContent(
 		fyne.NewContainerWithLayout(
@@ -76,40 +92,53 @@ func Start() {
 //	)
 //}
 
-func (t *Gim) generateCanvasObjectsFromGrids(container *fyne.Container) []fyne.CanvasObject {
+func (t *Gim) generateCanvasObjectsFromGrids() {
 	imageSelectFunc := func(index int) func() {
 		return func() {
 			imgPath, _ := dialog.File().Title("Select an image file").Load()
+			if imgPath == "" {
+				(*t.Window).RequestFocus()
+				return
+			}
+
 			img := canvas.NewImageFromFile(imgPath)
-			img.Resize(fyne.NewSize(75, 75))
+			img.Resize(fyne.NewSize(DefaultGridSize, DefaultGridSize))
 			t.Grids[index].Image = img
 			t.Grids[index].ImageFilePath = imgPath
-			t.generateCanvasObjectsFromGrids(container)
+			t.generateCanvasObjectsFromGrids()
 		}
 	}
 
-	var objs []fyne.CanvasObject
-	container.Objects = objs
-	for _, grid := range t.Grids {
-		var obj fyne.CanvasObject
-		obj = widget.NewButton("", imageSelectFunc(grid.Index))
+	t.ImagesSection.Objects = nil
+	for i := 0; i < t.GridCountY; i++ {
+		row := fyne.NewContainerWithLayout(
+			layout.NewFixedGridLayout(fyne.NewSize(DefaultGridSize, DefaultGridSize)),
+		)
+		for j := 0; j < t.GridCountX; j++ {
+			var obj fyne.CanvasObject
+			index := i * DefaultGridCountX + j
+			grid := t.Grids[index]
+			obj = widget.NewButton("", imageSelectFunc(grid.Index))
 
-		if grid.Image != nil {
-			obj = grid.Image
+			if grid.Image != nil {
+				obj = grid.Image
+			}
+			row.AddObject(obj)
 		}
-		container.AddObject(obj)
-	}
 
-	return objs
+		t.ImagesSection.AddObject(row)
+	}
 }
 
 func (t *Gim) GridImagesSection() *fyne.Container {
 
 	images := fyne.NewContainerWithLayout(
-		layout.NewFixedGridLayout(fyne.NewSize(75, 75)),
+		layout.NewVBoxLayout(),
 	)
 
-	t.generateCanvasObjectsFromGrids(images)
+	t.ImagesSection = images
+	t.generateGrids()
+	t.generateCanvasObjectsFromGrids()
 
 	return fyne.NewContainerWithLayout(
 		layout.NewGridLayout(1),
@@ -120,10 +149,37 @@ func (t *Gim) GridImagesSection() *fyne.Container {
 }
 
 func (t *Gim) GridSize() *widget.Box {
+	onSizeChange := func(enum rune) func(string) {
+		return func(s string) {
+			i, err := strconv.Atoi(s)
+			if s != "" && err != nil {
+				fyneDialog.ShowError(errors.New("Please enter a digit"), *t.Window)
+			}
+
+			if enum == 'x' {
+				if s == "" {
+					i = DefaultGridCountX
+				}
+				t.GridCountX = i
+			} else {
+				if s == "" {
+					i = DefaultGridCountY
+				}
+				t.GridCountY = i
+			}
+
+			t.generateGrids()
+			t.generateCanvasObjectsFromGrids()
+		}
+	}
+
 	sizeEntryX := widget.NewEntry()
-	sizeEntryX.SetPlaceHolder("2")
+	sizeEntryX.OnChanged = onSizeChange('x')
+	sizeEntryX.SetPlaceHolder(strconv.Itoa(DefaultGridCountX))
+
 	sizeEntryY := widget.NewEntry()
-	sizeEntryY.SetPlaceHolder("1")
+	sizeEntryY.OnChanged = onSizeChange('y')
+	sizeEntryY.SetPlaceHolder(strconv.Itoa(DefaultGridCountY))
 
 	return widget.NewVBox(widget.NewHBox(
 		widget.NewLabel("Horizontal Size:"),
@@ -147,9 +203,15 @@ func (t *Gim) merge() {
 
 	mergeFilePath, _ := dialog.File().Title("Merge Image Path").Save()
 
-	rgba, _ := gim.New(gimGrids, t.GridSizeX, t.GridSizeY).Merge()
+	if mergeFilePath == "" {
+		(*t.Window).RequestFocus()
+		return
+	}
+
+	rgba, _ := gim.New(gimGrids, t.GridCountX, t.GridCountY).Merge()
 	file, _ := os.Create(mergeFilePath)
 	jpeg.Encode(file, rgba, &jpeg.Options{Quality: 80})
+	(*t.Window).RequestFocus()
 }
 
 func (t *Gim) ActionsSection() fyne.CanvasObject {
