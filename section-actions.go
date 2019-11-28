@@ -6,7 +6,7 @@ import (
 	"fyne.io/fyne/widget"
 )
 
-func (t *Gim) ActionsSection() fyne.CanvasObject {
+func (t *Gim) actionsSection() fyne.CanvasObject {
 	return fyne.NewContainerWithLayout(
 		layout.NewVBoxLayout(),
 		widget.NewGroup("Actions",

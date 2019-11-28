@@ -6,7 +6,7 @@ import (
 	"fyne.io/fyne/widget"
 )
 
-func (t *Gim) GridImagesSection() *fyne.Container {
+func (t *Gim) gridImagesSection() *fyne.Container {
 
 	images := fyne.NewContainerWithLayout(
 		layout.NewVBoxLayout(),

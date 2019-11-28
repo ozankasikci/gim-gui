@@ -58,10 +58,10 @@ func Start() {
 	w.SetContent(
 		fyne.NewContainerWithLayout(
 			layout.NewVBoxLayout(),
-			gim.GridOptionsSection(),
+			gim.gridOptionsSection(),
 			//gim.ImagesSection(),
-			gim.GridImagesSection(),
-			gim.ActionsSection(),
+			gim.gridImagesSection(),
+			gim.actionsSection(),
 		),
 	)
 

@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-func (t *Gim) GridSize() *widget.Box {
+func (t *Gim) gridSizeOptions() *widget.Box {
 	onSizeChange := func(enum rune) func(string) {
 		return func(s string) {
 			i, err := strconv.Atoi(s)
@@ -50,6 +50,6 @@ func (t *Gim) GridSize() *widget.Box {
 	))
 }
 
-func (t *Gim) GridOptionsSection() *fyne.Container {
-	return fyne.NewContainerWithLayout(layout.NewGridLayout(1), widget.NewGroup("Grid Options", t.GridSize()))
+func (t *Gim) gridOptionsSection() *fyne.Container {
+	return fyne.NewContainerWithLayout(layout.NewGridLayout(1), widget.NewGroup("Grid Options", t.gridSizeOptions()))
 }
