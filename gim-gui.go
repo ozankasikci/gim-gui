@@ -71,27 +71,6 @@ func Start() {
 	w.ShowAndRun()
 }
 
-//func (t *Gim) ImagesSection() *fyne.Container {
-//	imagesBox := fyne.NewContainerWithLayout(
-//		layout.NewFixedGridLayout(fyne.NewSize(75, 75)),
-//	)
-//
-//	addImageButton := widget.NewButton("Add Image", func() {
-//		imgPath, _ := dialog.File().Title("Select an image file").Load()
-//		img := canvas.NewImageFromFile(imgPath)
-//		img.Resize(fyne.NewSize(75, 75))
-//		imagesBox.AddObject(img)
-//	})
-//
-//	return fyne.NewContainerWithLayout(
-//		layout.NewVBoxLayout(),
-//		widget.NewGroup("Images",
-//			addImageButton,
-//			imagesBox,
-//		),
-//	)
-//}
-
 func (t *Gim) generateCanvasObjectsFromGrids() {
 	imageSelectFunc := func(index int) func() {
 		return func() {
