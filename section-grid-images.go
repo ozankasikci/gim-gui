@@ -23,4 +23,3 @@ func (t *Gim) gridImagesSection() *fyne.Container {
 		),
 	)
 }
-

@@ -15,13 +15,13 @@ import (
 const (
 	DefaultGridCountX = 2
 	DefaultGridCountY = 1
-	DefaultGridSize = 75
+	DefaultGridSize   = 75
 )
 
 type Grid struct {
 	ImageFilePath string
-	Image *canvas.Image
-	Index int
+	Image         *canvas.Image
+	Index         int
 }
 
 type Gim struct {
@@ -34,7 +34,7 @@ type Gim struct {
 
 func (t *Gim) generateGrids() {
 	t.Grids = nil
-	for i := 0; i < t.GridCountX* t.GridCountY; i++ {
+	for i := 0; i < t.GridCountX*t.GridCountY; i++ {
 		grid := &Grid{
 			Index: i,
 		}
@@ -59,7 +59,6 @@ func Start() {
 		fyne.NewContainerWithLayout(
 			layout.NewVBoxLayout(),
 			gim.gridOptionsSection(),
-			//gim.ImagesSection(),
 			gim.gridImagesSection(),
 			gim.actionsSection(),
 		),
@@ -94,7 +93,7 @@ func (t *Gim) generateCanvasObjectsFromGrids() {
 		)
 		for j := 0; j < t.GridCountX; j++ {
 			var obj fyne.CanvasObject
-			index := i * t.GridCountX + j
+			index := i*t.GridCountX + j
 			grid := t.Grids[index]
 			obj = widget.NewButton("", imageSelectFunc(grid.Index))
 
@@ -128,4 +127,3 @@ func (t *Gim) merge() {
 	jpeg.Encode(file, rgba, &jpeg.Options{Quality: 80})
 	(*t.Window).RequestFocus()
 }
-

@@ -10,7 +10,7 @@ func (t *Gim) actionsSection() fyne.CanvasObject {
 	return fyne.NewContainerWithLayout(
 		layout.NewVBoxLayout(),
 		widget.NewGroup("Actions",
-			widget.NewButton("Merge",t.merge),
+			widget.NewButton("Merge", t.merge),
 		),
 	)
 }

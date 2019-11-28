@@ -2,6 +2,6 @@ package main
 
 import gimgui "github.com/ozankasikci/gim-gui"
 
-func main()  {
+func main() {
 	gimgui.Start()
 }
