@@ -81,18 +81,20 @@ func (t *Gim) generateCanvasObjectsFromGrids() {
 			img.Resize(fyne.NewSize(DefaultGridSize, DefaultGridSize))
 			t.Grids[index].Image = img
 			t.Grids[index].ImageFilePath = imgPath
+			(*t.Window).RequestFocus()
 			t.generateCanvasObjectsFromGrids()
 		}
 	}
 
 	t.ImagesSection.Objects = nil
+
 	for i := 0; i < t.GridCountY; i++ {
 		row := fyne.NewContainerWithLayout(
 			layout.NewFixedGridLayout(fyne.NewSize(DefaultGridSize, DefaultGridSize)),
 		)
 		for j := 0; j < t.GridCountX; j++ {
 			var obj fyne.CanvasObject
-			index := i * DefaultGridCountX + j
+			index := i * t.GridCountX + j
 			grid := t.Grids[index]
 			obj = widget.NewButton("", imageSelectFunc(grid.Index))
 
