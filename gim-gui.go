@@ -6,10 +6,14 @@ import (
 	"fyne.io/fyne/canvas"
 	"fyne.io/fyne/layout"
 	"fyne.io/fyne/widget"
+	gim "github.com/ozankasikci/go-image-merge"
 	"github.com/sqweek/dialog"
+	"image/jpeg"
+	"os"
 )
 
 type Grid struct {
+	ImageFilePath string
 	Image *canvas.Image
 	Index int
 }
@@ -35,7 +39,7 @@ func NewGim() *Gim {
 func Start() {
 	app := app.New()
 	w := app.NewWindow("GIM")
-	w.Resize(fyne.Size{800, 800})
+	w.Resize(fyne.Size{500, 500})
 	gim := NewGim()
 
 	w.SetContent(
@@ -44,6 +48,7 @@ func Start() {
 			gim.GridOptionsSection(),
 			//gim.ImagesSection(),
 			gim.GridImagesSection(),
+			gim.ActionsSection(),
 		),
 	)
 
@@ -78,6 +83,7 @@ func (t *Gim) generateCanvasObjectsFromGrids(container *fyne.Container) []fyne.C
 			img := canvas.NewImageFromFile(imgPath)
 			img.Resize(fyne.NewSize(75, 75))
 			t.Grids[index].Image = img
+			t.Grids[index].ImageFilePath = imgPath
 			t.generateCanvasObjectsFromGrids(container)
 		}
 	}
@@ -129,4 +135,28 @@ func (t *Gim) GridSize() *widget.Box {
 
 func (t *Gim) GridOptionsSection() *fyne.Container {
 	return fyne.NewContainerWithLayout(layout.NewGridLayout(1), widget.NewGroup("Grid Options", t.GridSize()))
+}
+
+func (t *Gim) merge() {
+	var gimGrids []*gim.Grid
+	for _, grid := range t.Grids {
+		gimGrids = append(gimGrids, &gim.Grid{
+			ImageFilePath: grid.ImageFilePath,
+		})
+	}
+
+	mergeFilePath, _ := dialog.File().Title("Merge Image Path").Save()
+
+	rgba, _ := gim.New(gimGrids, t.GridSizeX, t.GridSizeY).Merge()
+	file, _ := os.Create(mergeFilePath)
+	jpeg.Encode(file, rgba, &jpeg.Options{Quality: 80})
+}
+
+func (t *Gim) ActionsSection() fyne.CanvasObject {
+	return fyne.NewContainerWithLayout(
+		layout.NewVBoxLayout(),
+		widget.NewGroup("Actions",
+			widget.NewButton("Merge",t.merge),
+		),
+	)
 }
