@@ -1,7 +1,9 @@
 package gimgui
 
 import (
+	"errors"
 	"fyne.io/fyne"
+	fyneDialog "fyne.io/fyne/dialog"
 	"fyne.io/fyne/layout"
 	"fyne.io/fyne/widget"
 	"strconv"
