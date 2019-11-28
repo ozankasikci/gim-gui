@@ -1,18 +1,15 @@
 package gimgui
 
 import (
-	"errors"
 	"fyne.io/fyne"
 	"fyne.io/fyne/app"
 	"fyne.io/fyne/canvas"
-	fyneDialog "fyne.io/fyne/dialog"
 	"fyne.io/fyne/layout"
 	"fyne.io/fyne/widget"
 	gim "github.com/ozankasikci/go-image-merge"
 	"github.com/sqweek/dialog"
 	"image/jpeg"
 	"os"
-	"strconv"
 )
 
 const (
@@ -109,69 +106,6 @@ func (t *Gim) generateCanvasObjectsFromGrids() {
 	}
 }
 
-func (t *Gim) GridImagesSection() *fyne.Container {
-
-	images := fyne.NewContainerWithLayout(
-		layout.NewVBoxLayout(),
-	)
-
-	t.ImagesSection = images
-	t.generateGrids()
-	t.generateCanvasObjectsFromGrids()
-
-	return fyne.NewContainerWithLayout(
-		layout.NewGridLayout(1),
-		widget.NewGroup("Grids",
-			images,
-		),
-	)
-}
-
-func (t *Gim) GridSize() *widget.Box {
-	onSizeChange := func(enum rune) func(string) {
-		return func(s string) {
-			i, err := strconv.Atoi(s)
-			if s != "" && err != nil {
-				fyneDialog.ShowError(errors.New("Please enter a digit"), *t.Window)
-			}
-
-			if enum == 'x' {
-				if s == "" {
-					i = DefaultGridCountX
-				}
-				t.GridCountX = i
-			} else {
-				if s == "" {
-					i = DefaultGridCountY
-				}
-				t.GridCountY = i
-			}
-
-			t.generateGrids()
-			t.generateCanvasObjectsFromGrids()
-		}
-	}
-
-	sizeEntryX := widget.NewEntry()
-	sizeEntryX.OnChanged = onSizeChange('x')
-	sizeEntryX.SetPlaceHolder(strconv.Itoa(DefaultGridCountX))
-
-	sizeEntryY := widget.NewEntry()
-	sizeEntryY.OnChanged = onSizeChange('y')
-	sizeEntryY.SetPlaceHolder(strconv.Itoa(DefaultGridCountY))
-
-	return widget.NewVBox(widget.NewHBox(
-		widget.NewLabel("Horizontal Size:"),
-		sizeEntryX,
-		widget.NewLabel("Vertical Size:"),
-		sizeEntryY,
-	))
-}
-
-func (t *Gim) GridOptionsSection() *fyne.Container {
-	return fyne.NewContainerWithLayout(layout.NewGridLayout(1), widget.NewGroup("Grid Options", t.GridSize()))
-}
-
 func (t *Gim) merge() {
 	var gimGrids []*gim.Grid
 	for _, grid := range t.Grids {
@@ -193,11 +127,3 @@ func (t *Gim) merge() {
 	(*t.Window).RequestFocus()
 }
 
-func (t *Gim) ActionsSection() fyne.CanvasObject {
-	return fyne.NewContainerWithLayout(
-		layout.NewVBoxLayout(),
-		widget.NewGroup("Actions",
-			widget.NewButton("Merge",t.merge),
-		),
-	)
-}
