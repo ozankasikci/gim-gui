@@ -19,6 +19,7 @@ type Grid struct {
 }
 
 type Gim struct {
+	gim             *gim.MergeImage
 	Window          *fyne.Window
 	ImagesSection   *fyne.Container
 	GridColumnCount int
@@ -39,7 +40,14 @@ func (t *Gim) generateGrids() {
 }
 
 func NewGim(w *fyne.Window) *Gim {
-	gim := &Gim{GridColumnCount: DefaultGridCountX, GridRowCount: DefaultGridCountY, Window: w}
+	gimInstance := gim.New(nil, DefaultGridCountX, DefaultGridCountY)
+
+	gim := &Gim{
+		GridColumnCount: DefaultGridCountX,
+		GridRowCount: DefaultGridCountY,
+		Window: w,
+		gim: gimInstance,
+	}
 	gim.generateGrids()
 
 	return gim
@@ -73,9 +81,8 @@ func (t *Gim) generateCanvasObjectsFromGrids() {
 				return
 			}
 
-			img := canvas.NewImageFromFile(imgPath)
-			img.Resize(fyne.NewSize(DefaultGridSize, DefaultGridSize))
-			t.Grids[index].Image = img
+			img, _ := t.gim.ReadImageFile(imgPath)
+			t.Grids[index].Image = canvas.NewImageFromImage(img)
 			t.Grids[index].ImageFilePath = imgPath
 			(*t.Window).RequestFocus()
 			t.generateCanvasObjectsFromGrids()
@@ -119,7 +126,11 @@ func (t *Gim) merge() {
 		return
 	}
 
-	rgba, _ := gim.New(gimGrids, t.GridColumnCount, t.GridRowCount).Merge()
+	if t.GridSizeX != 0 && t.GridSizeY != 0 {
+		gim.OptGridSize(t.GridSizeX, t.GridSizeY)(t.gim)
+	}
+
+	rgba, _ := t.gim.Merge()
 	file, _ := os.Create(mergeFilePath)
 	jpeg.Encode(file, rgba, &jpeg.Options{Quality: 80})
 	(*t.Window).RequestFocus()

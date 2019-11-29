@@ -6,6 +6,7 @@ import (
 	fyneDialog "fyne.io/fyne/dialog"
 	"fyne.io/fyne/layout"
 	"fyne.io/fyne/widget"
+	gim "github.com/ozankasikci/go-image-merge"
 	"strconv"
 )
 
@@ -61,8 +62,36 @@ func (t *Gim) gridColumnRowOptions() *widget.Box {
 }
 
 func (t *Gim) gridSizeOptions() *widget.Box {
+	onSizeChange := func(enum rune) func(string) {
+		return func(s string) {
+			if s == "" {
+				return
+			}
+
+			i, err := strconv.Atoi(s)
+			if err != nil {
+				fyneDialog.ShowError(errors.New(TextEnterDigitWarning), *t.Window)
+				return
+			}
+
+			println(i)
+			if enum == 'x' {
+				t.GridSizeX = i
+			} else {
+				t.GridSizeY = i
+			}
+
+			if t.GridSizeX != 0 && t.GridSizeY != 0 {
+				gim.OptGridSize(t.GridSizeX, t.GridSizeY)(t.gim)
+			}
+		}
+	}
+
 	sizeEntryX := widget.NewEntry()
+	sizeEntryX.OnChanged = onSizeChange('x')
 	sizeEntryY := widget.NewEntry()
+	sizeEntryY.OnChanged = onSizeChange('y')
+
 	return widget.NewVBox(widget.NewHBox(
 		widget.NewLabel(TextGridSizeX),
 		sizeEntryX,

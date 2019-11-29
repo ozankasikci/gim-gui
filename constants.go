@@ -8,13 +8,13 @@ const (
 	DefaultGridSize   = 75
 
 	TextEnterDigitWarning = "Please enter a digit"
-	TextColumnCount = "Column Count:"
-	TextRowCount = "Row Count:"
-	TextGridSizeX = "Grid Size X:"
-	TextGridSizeY = "Grid Size Y:"
+	TextColumnCount = "Column Item Count:"
+	TextRowCount = "Row Item Count:"
+	TextGridSizeX = "Image Size X (px):"
+	TextGridSizeY = "Image Size Y (px):"
 
-	TitleTabItemGridCount = "Grid Count"
-	TitleTabItemGridSize = "Grid Count"
+	TitleTabItemGridCount = "Grid Item Count"
+	TitleTabItemGridSize = "Grid Image Size"
 
 	TitleSectionActions = "Actions"
 	TitleButtonMerge = "Merge"
