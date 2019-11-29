@@ -9,12 +9,12 @@ import (
 	"strconv"
 )
 
-func (t *Gim) gridSizeOptions() *widget.Box {
+func (t *Gim) gridColumnRowOptions() *widget.Box {
 	onSizeChange := func(enum rune) func(string) {
 		return func(s string) {
 			i, err := strconv.Atoi(s)
 			if s != "" && err != nil {
-				fyneDialog.ShowError(errors.New("Please enter a digit"), *t.Window)
+				fyneDialog.ShowError(errors.New(TextEnterDigitWarning), *t.Window)
 			}
 
 			if enum == 'x' {
@@ -26,7 +26,7 @@ func (t *Gim) gridSizeOptions() *widget.Box {
 					i = MaxGridCountX
 				}
 
-				t.GridCountX = i
+				t.GridColumnCount = i
 			} else {
 				if s == "" {
 					i = DefaultGridCountY
@@ -36,7 +36,7 @@ func (t *Gim) gridSizeOptions() *widget.Box {
 					i = MaxGridCountY
 				}
 
-				t.GridCountY = i
+				t.GridRowCount = i
 			}
 
 			t.generateGrids()
@@ -44,22 +44,39 @@ func (t *Gim) gridSizeOptions() *widget.Box {
 		}
 	}
 
-	sizeEntryX := widget.NewEntry()
-	sizeEntryX.OnChanged = onSizeChange('x')
-	sizeEntryX.SetPlaceHolder(strconv.Itoa(DefaultGridCountX))
+	sizeEntryColumn := widget.NewEntry()
+	sizeEntryColumn.OnChanged = onSizeChange('x')
+	sizeEntryColumn.SetPlaceHolder(strconv.Itoa(DefaultGridCountX))
 
-	sizeEntryY := widget.NewEntry()
-	sizeEntryY.OnChanged = onSizeChange('y')
-	sizeEntryY.SetPlaceHolder(strconv.Itoa(DefaultGridCountY))
+	sizeEntryRow := widget.NewEntry()
+	sizeEntryRow.OnChanged = onSizeChange('y')
+	sizeEntryRow.SetPlaceHolder(strconv.Itoa(DefaultGridCountY))
 
 	return widget.NewVBox(widget.NewHBox(
-		widget.NewLabel("Column Count:"),
+		widget.NewLabel(TextColumnCount),
+		sizeEntryColumn,
+		widget.NewLabel(TextRowCount),
+		sizeEntryRow,
+	))
+}
+
+func (t *Gim) gridSizeOptions() *widget.Box {
+	sizeEntryX := widget.NewEntry()
+	sizeEntryY := widget.NewEntry()
+	return widget.NewVBox(widget.NewHBox(
+		widget.NewLabel(TextGridSizeX),
 		sizeEntryX,
-		widget.NewLabel("Row Count:"),
+		widget.NewLabel(TextGridSizeY),
 		sizeEntryY,
 	))
 }
 
 func (t *Gim) gridOptionsSection() *fyne.Container {
-	return fyne.NewContainerWithLayout(layout.NewGridLayout(1), widget.NewGroup("Grid Options", t.gridSizeOptions()))
+	return fyne.NewContainerWithLayout(
+		layout.NewGridLayout(1),
+		widget.NewTabContainer(
+			widget.NewTabItem(TitleTabItemGridCount, t.gridColumnRowOptions()),
+			widget.NewTabItem(TitleTabItemGridSize, t.gridSizeOptions()),
+		),
+	)
 }

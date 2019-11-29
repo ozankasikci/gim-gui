@@ -12,14 +12,6 @@ import (
 	"os"
 )
 
-const (
-	DefaultGridCountX = 2
-	DefaultGridCountY = 1
-	MaxGridCountX     = 9
-	MaxGridCountY     = 9
-	DefaultGridSize   = 75
-)
-
 type Grid struct {
 	ImageFilePath string
 	Image         *canvas.Image
@@ -27,16 +19,18 @@ type Grid struct {
 }
 
 type Gim struct {
-	Window        *fyne.Window
-	ImagesSection *fyne.Container
-	GridCountX    int
-	GridCountY    int
-	Grids         []*Grid
+	Window          *fyne.Window
+	ImagesSection   *fyne.Container
+	GridColumnCount int
+	GridRowCount    int
+	GridSizeX       int
+	GridSizeY       int
+	Grids           []*Grid
 }
 
 func (t *Gim) generateGrids() {
 	t.Grids = nil
-	for i := 0; i < t.GridCountX*t.GridCountY; i++ {
+	for i := 0; i < t.GridColumnCount*t.GridRowCount; i++ {
 		grid := &Grid{
 			Index: i,
 		}
@@ -45,7 +39,7 @@ func (t *Gim) generateGrids() {
 }
 
 func NewGim(w *fyne.Window) *Gim {
-	gim := &Gim{GridCountX: DefaultGridCountX, GridCountY: DefaultGridCountY, Window: w}
+	gim := &Gim{GridColumnCount: DefaultGridCountX, GridRowCount: DefaultGridCountY, Window: w}
 	gim.generateGrids()
 
 	return gim
@@ -90,13 +84,13 @@ func (t *Gim) generateCanvasObjectsFromGrids() {
 
 	t.ImagesSection.Objects = nil
 
-	for i := 0; i < t.GridCountY; i++ {
+	for i := 0; i < t.GridRowCount; i++ {
 		row := fyne.NewContainerWithLayout(
 			layout.NewFixedGridLayout(fyne.NewSize(DefaultGridSize, DefaultGridSize)),
 		)
-		for j := 0; j < t.GridCountX; j++ {
+		for j := 0; j < t.GridColumnCount; j++ {
 			var obj fyne.CanvasObject
-			index := i*t.GridCountX + j
+			index := i*t.GridColumnCount + j
 			grid := t.Grids[index]
 			obj = widget.NewButton("", imageSelectFunc(grid.Index))
 
@@ -118,14 +112,14 @@ func (t *Gim) merge() {
 		})
 	}
 
-	mergeFilePath, _ := dialog.File().Title("Merge Image Path").Save()
+	mergeFilePath, _ := dialog.File().Title("Merge Image Path").Filter("", "jpg", "png").Save()
 
 	if mergeFilePath == "" {
 		(*t.Window).RequestFocus()
 		return
 	}
 
-	rgba, _ := gim.New(gimGrids, t.GridCountX, t.GridCountY).Merge()
+	rgba, _ := gim.New(gimGrids, t.GridColumnCount, t.GridRowCount).Merge()
 	file, _ := os.Create(mergeFilePath)
 	jpeg.Encode(file, rgba, &jpeg.Options{Quality: 80})
 	(*t.Window).RequestFocus()

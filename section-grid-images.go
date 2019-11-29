@@ -18,7 +18,7 @@ func (t *Gim) gridImagesSection() *fyne.Container {
 
 	return fyne.NewContainerWithLayout(
 		layout.NewGridLayout(1),
-		widget.NewGroup("Grids",
+		widget.NewGroup(TitleSectionGrids,
 			images,
 		),
 	)
