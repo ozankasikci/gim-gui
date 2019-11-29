@@ -15,6 +15,8 @@ import (
 const (
 	DefaultGridCountX = 2
 	DefaultGridCountY = 1
+	MaxGridCountX     = 9
+	MaxGridCountY     = 9
 	DefaultGridSize   = 75
 )
 
@@ -52,7 +54,7 @@ func NewGim(w *fyne.Window) *Gim {
 func Start() {
 	app := app.New()
 	w := app.NewWindow("GIM")
-	w.Resize(fyne.Size{500, 500})
+	w.Resize(fyne.Size{800, 600})
 	gim := NewGim(&w)
 
 	w.SetContent(

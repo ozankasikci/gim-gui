@@ -21,11 +21,21 @@ func (t *Gim) gridSizeOptions() *widget.Box {
 				if s == "" {
 					i = DefaultGridCountX
 				}
+
+				if i > MaxGridCountX {
+					i = MaxGridCountX
+				}
+
 				t.GridCountX = i
 			} else {
 				if s == "" {
 					i = DefaultGridCountY
 				}
+
+				if i > MaxGridCountY {
+					i = MaxGridCountY
+				}
+
 				t.GridCountY = i
 			}
 
