@@ -53,9 +53,9 @@ func (t *Gim) gridSizeOptions() *widget.Box {
 	sizeEntryY.SetPlaceHolder(strconv.Itoa(DefaultGridCountY))
 
 	return widget.NewVBox(widget.NewHBox(
-		widget.NewLabel("Horizontal Size:"),
+		widget.NewLabel("Column Count:"),
 		sizeEntryX,
-		widget.NewLabel("Vertical Size:"),
+		widget.NewLabel("Row Count:"),
 		sizeEntryY,
 	))
 }
