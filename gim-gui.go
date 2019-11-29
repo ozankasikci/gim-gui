@@ -60,6 +60,7 @@ func Start() {
 			layout.NewVBoxLayout(),
 			gim.gridOptionsSection(),
 			gim.gridImagesSection(),
+			layout.NewSpacer(),
 			gim.actionsSection(),
 		),
 	)
