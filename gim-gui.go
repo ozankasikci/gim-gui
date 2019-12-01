@@ -8,8 +8,6 @@ import (
 	"fyne.io/fyne/widget"
 	gim "github.com/ozankasikci/go-image-merge"
 	"github.com/sqweek/dialog"
-	"image/jpeg"
-	"os"
 )
 
 type Grid struct {
@@ -44,9 +42,9 @@ func NewGim(w *fyne.Window) *Gim {
 
 	gim := &Gim{
 		GridColumnCount: DefaultGridCountX,
-		GridRowCount: DefaultGridCountY,
-		Window: w,
-		gim: gimInstance,
+		GridRowCount:    DefaultGridCountY,
+		Window:          w,
+		gim:             gimInstance,
 	}
 	gim.generateGrids()
 
@@ -109,29 +107,4 @@ func (t *Gim) generateCanvasObjectsFromGrids() {
 
 		t.ImagesSection.AddObject(row)
 	}
-}
-
-func (t *Gim) merge() {
-	var gimGrids []*gim.Grid
-	for _, grid := range t.Grids {
-		gimGrids = append(gimGrids, &gim.Grid{
-			ImageFilePath: grid.ImageFilePath,
-		})
-	}
-
-	mergeFilePath, _ := dialog.File().Title("Merge Image Path").Filter("", "jpg", "png").Save()
-
-	if mergeFilePath == "" {
-		(*t.Window).RequestFocus()
-		return
-	}
-
-	if t.GridSizeX != 0 && t.GridSizeY != 0 {
-		gim.OptGridSize(t.GridSizeX, t.GridSizeY)(t.gim)
-	}
-
-	rgba, _ := t.gim.Merge()
-	file, _ := os.Create(mergeFilePath)
-	jpeg.Encode(file, rgba, &jpeg.Options{Quality: 80})
-	(*t.Window).RequestFocus()
 }
