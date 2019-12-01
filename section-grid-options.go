@@ -74,7 +74,6 @@ func (t *Gim) gridSizeOptions() *widget.Box {
 				return
 			}
 
-			println(i)
 			if enum == 'x' {
 				t.GridSizeX = i
 			} else {
