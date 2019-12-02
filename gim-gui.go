@@ -43,6 +43,8 @@ func NewGim(w *fyne.Window) *Gim {
 	gim := &Gim{
 		GridColumnCount: DefaultGridCountX,
 		GridRowCount:    DefaultGridCountY,
+		GridSizeX:       DefaultGridSizeX,
+		GridSizeY:       DefaultGridSizeY,
 		Window:          w,
 		gim:             gimInstance,
 	}
@@ -91,8 +93,9 @@ func (t *Gim) generateCanvasObjectsFromGrids() {
 
 	for i := 0; i < t.GridRowCount; i++ {
 		row := fyne.NewContainerWithLayout(
-			layout.NewFixedGridLayout(fyne.NewSize(DefaultGridSize, DefaultGridSize)),
+			layout.NewFixedGridLayout(fyne.NewSize(t.GridSizeX, t.GridSizeY)),
 		)
+
 		for j := 0; j < t.GridColumnCount; j++ {
 			var obj fyne.CanvasObject
 			index := i*t.GridColumnCount + j
@@ -100,7 +103,7 @@ func (t *Gim) generateCanvasObjectsFromGrids() {
 			obj = widget.NewButton("", imageSelectFunc(grid.Index))
 
 			if grid.Image != nil {
-				obj = grid.Image
+				obj = imageBoxResized(grid.Image.Image, t.GridSizeX, t.GridSizeY)
 			}
 			row.AddObject(obj)
 		}
