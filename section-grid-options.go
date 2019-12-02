@@ -10,47 +10,47 @@ import (
 	"strconv"
 )
 
-func (t *Gim) gridColumnRowOptions() *widget.Box {
-	onSizeChange := func(enum rune) func(string) {
-		return func(s string) {
-			i, err := strconv.Atoi(s)
-			if s != "" && err != nil {
-				fyneDialog.ShowError(errors.New(TextEnterDigitWarning), *t.Window)
-			}
-
-			if enum == 'x' {
-				if s == "" {
-					i = DefaultGridCountX
-				}
-
-				if i > MaxGridCountX {
-					i = MaxGridCountX
-				}
-
-				t.GridColumnCount = i
-			} else {
-				if s == "" {
-					i = DefaultGridCountY
-				}
-
-				if i > MaxGridCountY {
-					i = MaxGridCountY
-				}
-
-				t.GridRowCount = i
-			}
-
-			t.generateGrids()
-			t.generateCanvasObjectsFromGrids()
+func (t *Gim) onSizeChange(enum rune) func(string) {
+	return func(s string) {
+		i, err := strconv.Atoi(s)
+		if s != "" && err != nil {
+			fyneDialog.ShowError(errors.New(TextEnterDigitWarning), *t.Window)
 		}
-	}
 
+		if enum == 'x' {
+			if s == "" {
+				i = DefaultGridCountX
+			}
+
+			if i > MaxGridCountX {
+				i = MaxGridCountX
+			}
+
+			t.GridColumnCount = i
+		} else {
+			if s == "" {
+				i = DefaultGridCountY
+			}
+
+			if i > MaxGridCountY {
+				i = MaxGridCountY
+			}
+
+			t.GridRowCount = i
+		}
+
+		t.generateGrids()
+		t.generateCanvasObjectsFromGrids()
+	}
+}
+
+func (t *Gim) gridColumnRowOptions() *widget.Box {
 	sizeEntryColumn := widget.NewEntry()
-	sizeEntryColumn.OnChanged = onSizeChange('x')
+	sizeEntryColumn.OnChanged = t.onSizeChange('x')
 	sizeEntryColumn.SetPlaceHolder(strconv.Itoa(DefaultGridCountX))
 
 	sizeEntryRow := widget.NewEntry()
-	sizeEntryRow.OnChanged = onSizeChange('y')
+	sizeEntryRow.OnChanged = t.onSizeChange('y')
 	sizeEntryRow.SetPlaceHolder(strconv.Itoa(DefaultGridCountY))
 
 	return widget.NewVBox(widget.NewHBox(
@@ -83,12 +83,18 @@ func (t *Gim) gridSizeOptions() *widget.Box {
 			if t.GridSizeX != 0 && t.GridSizeY != 0 {
 				gim.OptGridSize(t.GridSizeX, t.GridSizeY)(t.gim)
 			}
+
+			t.generateGrids()
+			t.generateCanvasObjectsFromGrids()
 		}
 	}
 
 	sizeEntryX := widget.NewEntry()
+	sizeEntryX.SetPlaceHolder(strconv.Itoa(DefaultGridSizeX))
 	sizeEntryX.OnChanged = onSizeChange('x')
+
 	sizeEntryY := widget.NewEntry()
+	sizeEntryY.SetPlaceHolder(strconv.Itoa(DefaultGridSizeY))
 	sizeEntryY.OnChanged = onSizeChange('y')
 
 	return widget.NewVBox(widget.NewHBox(
