@@ -5,7 +5,8 @@ const (
 	DefaultGridCountY   = 1
 	MaxGridCountX       = 9
 	MaxGridCountY       = 9
-	DefaultGridSize     = 75
+	DefaultGridSizeX    = 75
+	DefaultGridSizeY    = 75
 	PreviewImageMaxSize = 400.0
 
 	TextEnterDigitWarning = "Please enter a digit"
