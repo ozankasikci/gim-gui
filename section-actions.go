@@ -46,23 +46,30 @@ func (t *Gim) generateRGBA() (*image.RGBA, error) {
 	return t.gim.Merge()
 }
 
-func (t *Gim) preview() {
-	rgba, err := t.generateRGBA()
-	if err != nil {
-		fyneDialog.ShowError(err, *t.Window)
-		return
-	}
+func imageBox(img *canvas.Image) *widget.Box {
+	container := widget.NewHBox(layout.NewSpacer(), img, layout.NewSpacer())
+	return widget.NewVBox(
+		layout.NewSpacer(),
+		container,
+		layout.NewSpacer(),
+	)
+}
 
+func imageBoxResized(rgba image.Image, maxSizeX, maxSizeY int) *widget.Box {
 	previewImage := canvas.NewImageFromImage(rgba)
 
 	ratio := 1.0
-	if rgba.Bounds().Dx() > PreviewImageMaxSize || rgba.Bounds().Dy() > PreviewImageMaxSize {
+	if rgba.Bounds().Dx() > maxSizeX || rgba.Bounds().Dy() > maxSizeY {
 		max := rgba.Bounds().Dx()
 		if max < rgba.Bounds().Dy() {
 			max = rgba.Bounds().Dy()
 		}
 
-		ratio = float64(max) / PreviewImageMaxSize
+		maxDimensionSize := maxSizeX
+		if maxDimensionSize < maxSizeY {
+			maxDimensionSize = maxSizeY
+		}
+		ratio = float64(max) / float64(maxDimensionSize)
 	}
 
 	previewImage.SetMinSize(fyne.NewSize(
@@ -70,13 +77,18 @@ func (t *Gim) preview() {
 		int(float64(rgba.Bounds().Dy())/ratio),
 	))
 
-	container := widget.NewHBox(layout.NewSpacer(), previewImage, layout.NewSpacer())
-	box := widget.NewVBox(
-		layout.NewSpacer(),
-		container,
-		layout.NewSpacer(),
-	)
-	fyneDialog.ShowCustom("Preview", "OK", box, *t.Window)
+	return imageBox(previewImage)
+}
+
+func (t *Gim) preview() {
+	rgba, err := t.generateRGBA()
+	if err != nil {
+		fyneDialog.ShowError(err, *t.Window)
+		return
+	}
+
+	previewBox := imageBoxResized(rgba, PreviewImageMaxSize, PreviewImageMaxSize)
+	fyneDialog.ShowCustom("Preview", "OK", previewBox, *t.Window)
 }
 
 func (t *Gim) actionsSection() fyne.CanvasObject {
